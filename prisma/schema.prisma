@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Bill {
+  id String @id @default(cuid())
+
+  // =====================
+  // Connection
+  // =====================
+
+  accountNumber String
+  billNumber    String @unique
+
+  consumerName  String?
+  fatherName    String?
+
+  address        String?
+  division       String?
+  subdivision    String?
+
+  category        String?
+  connectionType  String?
+  supplyType      String?
+
+  meterNumber String?
+
+  sanctionedLoad Float?
+  billedDemand   Float?
+
+  securityDeposit Float?
+
+  // =====================
+  // Dates
+  // =====================
+
+  billMonth String
+
+  billDate DateTime?
+
+  dueDate DateTime?
+
+  disconnectionDate DateTime?
+
+  billingStart DateTime?
+
+  billingEnd DateTime?
+
+  connectionDate DateTime?
+
+  // =====================
+  // Meter
+  // =====================
+
+  previousReading Float?
+  currentReading  Float?
+
+  consumption Float?
+
+  previousKVAH Float?
+  currentKVAH Float?
+
+  kvaConsumption Float?
+
+  powerFactor Float?
+
+  // =====================
+  // Solar
+  // =====================
+
+  solarExport Float?
+
+  openingSolarBalance Float?
+
+  closingSolarBalance Float?
+
+  // =====================
+  // Charges
+  // =====================
+
+  previousDue Float?
+
+  currentBill Float?
+
+  payableAmount Float?
+
+  energyCharges Float?
+
+  demandCharges Float?
+
+  electricityDuty Float?
+
+  fppa Float?
+
+  minimumCharges Float?
+
+  excessDemandPenalty Float?
+
+  otherCharges Float?
+
+  subsidy Float?
+
+  arrears Float?
+
+  credit Float?
+
+  debit Float?
+
+  rebate Float?
+
+  meterCharges Float?
+
+  dueSecurity Float?
+
+  // =====================
+  // Payment
+  // =====================
+
+  paymentDate DateTime?
+
+  paymentAmount Float?
+
+  paymentMode String?
+
+  receiptNumber String?
+
+  // =====================
+  // Raw Data
+  // =====================
+
+  rawText String
+
+  uploadedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
