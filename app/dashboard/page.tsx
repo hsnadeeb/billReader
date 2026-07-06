@@ -303,6 +303,7 @@ function DemandDial({
           d={arcPath(
             startAngle,
             Math.min(endAngle, startAngle + sweep * Math.min(1, clamped)),
+            r,
           )}
           stroke={needleColor}
           strokeWidth={10}
