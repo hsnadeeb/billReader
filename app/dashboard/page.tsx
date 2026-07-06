@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell,
   ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  ReferenceLine, LabelList,
 } from "recharts";
 
 interface Bill {
@@ -111,20 +112,22 @@ const LABELS: Record<string, string> = {
 
 const COLORS = ["#3B82F6", "#22C55E", "#F59E0B", "#8B5CF6", "#EF4444", "#EC4899", "#14B8A6", "#F97316"];
 
-const ttStyle = { background: "#1E293B", border: "1px solid #334155", borderRadius: 8, color: "#fff", fontSize: 13 };
+const ttStyle = { background: "rgba(15, 23, 42, 0.97)", border: "1px solid rgba(51, 65, 85, 0.6)", borderRadius: 10, color: "#fff", fontSize: 13, boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)", backdropFilter: "blur(8px)", padding: "10px 14px" };
 
 function Card({ title, value, subtitle, accent, icon }: {
   title: string; value: string; subtitle?: string; accent?: string; icon?: string;
 }) {
+  const iconBg = accent ? accent + "18" : "#3B82F618";
   return (
-    <div style={{ background: "#111827", borderRadius: 12, borderTop: `3px solid ${accent || "#3B82F6"}` }}>
-      <div style={{ padding: "18px 22px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ color: "#94A3B8", fontSize: 12, fontWeight: 500 }}>{title}</span>
-          {icon && <span style={{ fontSize: 18 }}>{icon}</span>}
+    <div className="kpi-card" style={{ borderRadius: 12, height: "100%", position: "relative", overflow: "hidden" }}>
+      <div className="kpi-accent" style={{ background: `linear-gradient(90deg, ${accent || "#3B82F6"}, ${accent || "#3B82F6"}88)` }} />
+      <div style={{ padding: "20px 22px 18px", display: "flex", flexDirection: "column", height: "100%" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+          <span style={{ color: "#94A3B8", fontSize: 12, fontWeight: 500, lineHeight: "36px", letterSpacing: "0.02em" }}>{title}</span>
+          {icon && <div className="kpi-icon" style={{ background: `${accent || "#3B82F6"}18` }}>{icon}</div>}
         </div>
-        <div style={{ fontSize: 26, fontWeight: 700, lineHeight: 1.2 }}>{value}</div>
-        {subtitle && <div style={{ color: "#64748B", marginTop: 4, fontSize: 11 }}>{subtitle}</div>}
+        <div style={{ fontSize: 26, fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.03em", color: "#F1F5F9" }}>{value}</div>
+        {subtitle && <div style={{ color: "#64748B", marginTop: "auto", paddingTop: 10, fontSize: 11, borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>{subtitle}</div>}
       </div>
     </div>
   );
@@ -134,10 +137,13 @@ function ChartCard({ title, subtitle, children }: {
   title: string; subtitle?: string; children: React.ReactNode;
 }) {
   return (
-    <div style={{ background: "#111827", borderRadius: 12, padding: 20, height: "100%" }}>
-      <div style={{ marginBottom: 16 }}>
-        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "#E2E8F0" }}>{title}</h3>
-        {subtitle && <span style={{ color: "#64748B", fontSize: 11, marginTop: 2 }}>{subtitle}</span>}
+    <div className="chart-card anim-in" style={{ borderRadius: 14, height: "100%" }}>
+      <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 4, height: 18, borderRadius: 4, background: "linear-gradient(180deg, #3B82F6, #60A5FA)", flexShrink: 0, boxShadow: "0 0 12px rgba(59, 130, 246, 0.3)" }} />
+        <div>
+          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "#F1F5F9", letterSpacing: "-0.01em" }}>{title}</h3>
+          {subtitle && <span style={{ color: "#64748B", fontSize: 11, marginTop: 1 }}>{subtitle}</span>}
+        </div>
       </div>
       {children}
     </div>
@@ -145,9 +151,30 @@ function ChartCard({ title, subtitle, children }: {
 }
 
 function AlertCard({ type, message }: { type: "warning" | "info" | "success"; message: string }) {
-  const colors = { warning: { bg: "#451A1A", border: "#991B1B", icon: "⚠", text: "#FCA5A5" }, info: { bg: "#1A1F45", border: "#1D4ED8", icon: "ℹ", text: "#93C5FD" }, success: { bg: "#0F2E1A", border: "#15803D", icon: "✓", text: "#86EFAC" } };
+  const colors = { warning: { bg: "rgba(153, 27, 27, 0.15)", border: "rgba(153, 27, 27, 0.4)", icon: "⚠", text: "#FCA5A5" }, info: { bg: "rgba(59, 130, 246, 0.12)", border: "rgba(59, 130, 246, 0.3)", icon: "ℹ", text: "#93C5FD" }, success: { bg: "rgba(21, 128, 61, 0.12)", border: "rgba(21, 128, 61, 0.3)", icon: "✓", text: "#86EFAC" } };
   const c = colors[type];
-  return <div style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 16 }}>{c.icon}</span><span style={{ color: c.text, fontSize: 13 }}>{message}</span></div>;
+  return <div className="alert-card" style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontSize: 16, flexShrink: 0 }}>{c.icon}</span><span style={{ color: c.text, fontSize: 13, lineHeight: 1.4 }}>{message}</span></div>;
+}
+
+function BillingCard({ b, onView }: { b: Bill; onView: (b: Bill) => void }) {
+  return (
+    <div className="billing-card" onClick={() => onView(b)} style={{ background: "rgba(17,24,39,0.8)", backdropFilter: "blur(16px)", borderRadius: 12, padding: "14px 16px", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", transition: "transform 0.2s ease, border-color 0.2s ease" }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)"; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "#F1F5F9" }}>{fmt(b.billMonth)}</div>
+          <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>{b.accountNumber} · {b.consumerName ?? "—"}</div>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#22C55E" }}>₹ {(b.payableAmount ?? 0).toFixed(0)}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+        <div><div style={{ fontSize: 9, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.05em" }}>kWh</div><div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", marginTop: 1 }}>{b.consumption?.toFixed(0) ?? "—"}</div></div>
+        <div><div style={{ fontSize: 9, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.05em" }}>Bill</div><div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", marginTop: 1 }}>₹ {(b.currentBill ?? 0).toFixed(0)}</div></div>
+        <div><div style={{ fontSize: 9, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.05em" }}>Solar</div><div style={{ fontSize: 13, fontWeight: 600, color: "#F97316", marginTop: 1 }}>{b.solarExport?.toFixed(0) ?? "—"}</div></div>
+      </div>
+    </div>
+  );
 }
 
 function SolarBalTooltip({ active, payload, label }: any) {
@@ -174,6 +201,38 @@ export default function DashboardPage() {
   const [selectedAccount, setSelectedAccount] = useState("");
   const [monthFrom, setMonthFrom] = useState("");
   const [monthTo, setMonthTo] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [chartH, setChartH] = useState(270);
+  const [chartHSm, setChartHSm] = useState(250);
+  const [chartHXs, setChartHXs] = useState(240);
+  const [chartHPie, setChartHPie] = useState(180);
+  const [chartHComp, setChartHComp] = useState(270);
+
+  useEffect(() => {
+    const mqMobile = window.matchMedia("(max-width: 480px)");
+    const mqTablet = window.matchMedia("(max-width: 900px)");
+    const mqSmall = window.matchMedia("(max-width: 768px)");
+    const update = () => {
+      const mob = mqMobile.matches;
+      const tab = mqTablet.matches;
+      setIsMobile(mqSmall.matches);
+      setChartH(mob ? 200 : tab ? 220 : 270);
+      setChartHSm(mob ? 180 : tab ? 200 : 250);
+      setChartHXs(mob ? 180 : tab ? 200 : 240);
+      setChartHPie(mob ? 130 : tab ? 150 : 180);
+      setChartHComp(mob ? 200 : tab ? 220 : 270);
+    };
+    update();
+    mqMobile.addEventListener("change", update);
+    mqTablet.addEventListener("change", update);
+    mqSmall.addEventListener("change", update);
+    return () => {
+      mqMobile.removeEventListener("change", update);
+      mqTablet.removeEventListener("change", update);
+      mqSmall.removeEventListener("change", update);
+    };
+  }, []);
 
   const accountNames = useMemo(() => {
     const map = new Map<string, string>();
@@ -299,36 +358,93 @@ export default function DashboardPage() {
   }
   if (totalSubsidy > 0) alerts.push({ type: "success", message: `Total subsidy availed: ₹ ${totalSubsidy.toFixed(0)} across ${total} bills.` });
 
-  if (loading) return <div style={{ textAlign: "center", padding: 80, opacity: 0.5 }}>Loading...</div>;
-  if (bills.length === 0) return <div style={{ textAlign: "center", padding: 80, opacity: 0.5 }}><h1>Dashboard</h1><p style={{ marginTop: 20 }}>No bills uploaded yet.</p></div>;
-  if (filtered.length === 0) return <div style={{ textAlign: "center", padding: 80, opacity: 0.5 }}><h1>Dashboard</h1><p style={{ marginTop: 20 }}>No bills match the selected filters.</p></div>;
+  if (loading) return (
+    <div style={{ padding: "40px 0" }}>
+      <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
+        {[1,2,3,4,5,6].map(i => <div key={i} style={{ flex: 1, height: 100, background: "linear-gradient(135deg, #111827 0%, #1a2332 100%)", borderRadius: 12, border: "1px solid rgba(51,65,85,0.3)", animation: "pulse 2s infinite" }} />)}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {[1,2].map(i => <div key={i} style={{ height: 320, background: "linear-gradient(135deg, #111827 0%, #1a2332 100%)", borderRadius: 12, border: "1px solid rgba(51,65,85,0.3)", animation: "pulse 2s infinite" }} />)}
+      </div>
+    </div>
+  );
+  if (bills.length === 0) return <div style={{ textAlign: "center", padding: "80px 20px", opacity: 0.6 }}><div style={{ fontSize: 48, marginBottom: 16 }}>📄</div><h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>No bills yet</h1><p style={{ marginTop: 12, color: "#64748B", fontSize: 14, maxWidth: 400, margin: "12px auto 0" }}>Upload your first electricity bill to get started with insights and analytics.</p></div>;
+  if (filtered.length === 0) return <div style={{ textAlign: "center", padding: "80px 20px", opacity: 0.6 }}><div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div><h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>No matching bills</h1><p style={{ marginTop: 12, color: "#64748B", fontSize: 14 }}>Try adjusting your filters to see more data.</p></div>;
 
   return (
     <div>
       {/* ============ HEADER ============ */}
-      <div className="header-row" style={{ marginBottom: 28 }}>
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Energy Dashboard</h1>
-          <p style={{ color: "#64748B", margin: "4px 0 0", fontSize: 13 }}>
-            {accountNames.get(selectedAccount) || selectedAccount} &middot; {total} billing periods
-          </p>
+      <div className="anim-in anim-in-1" style={{ marginBottom: 20, borderRadius: 14, padding: "16px 18px", background: "linear-gradient(135deg, rgba(17,24,39,0.8), rgba(17,24,39,0.5))", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 4px 32px rgba(0,0,0,0.2)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div className="live-dot" />
+            <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: "-0.02em" }}>Energy Dashboard</h1>
+          </div>
+          <button onClick={() => setShowFilters(true)}
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "8px 14px", color: "#94A3B8", fontSize: 13, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            Filters
+          </button>
         </div>
-        <div className="filters-row">
-          <select value={selectedAccount} onChange={e => setSelectedAccount(e.target.value)} style={s}>
-            {accounts.map(a => <option key={a} value={a}>{a}{accountNames.has(a) ? ` — ${accountNames.get(a)}` : ""}</option>)}
-          </select>
-          <span className="filter-label" style={{ color: "#64748B", fontSize: 12 }}>From</span>
-          <select value={monthFrom} onChange={e => setMonthFrom(e.target.value)} style={s}>
-            <option value="">Earliest</option>
-            {sortedMonths.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <span className="filter-label" style={{ color: "#64748B", fontSize: 12 }}>To</span>
-          <select value={monthTo} onChange={e => setMonthTo(e.target.value)} style={s}>
-            <option value="">Latest</option>
-            {sortedMonths.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
+        <p style={{ color: "#64748B", margin: "6px 0 0", fontSize: 12 }}>
+          {accountNames.get(selectedAccount) || selectedAccount} · {total} billing periods
+        </p>
+
+        {/* Desktop inline filters */}
+        <div className="desktop-only" style={{ marginTop: 14 }}>
+          <div className="filters-row">
+            <select value={selectedAccount} onChange={e => setSelectedAccount(e.target.value)}>
+              {accounts.map(a => <option key={a} value={a}>{a}{accountNames.has(a) ? ` — ${accountNames.get(a)}` : ""}</option>)}
+            </select>
+            <span className="filter-label" style={{ color: "#64748B", fontSize: 12, fontWeight: 500 }}>From</span>
+            <select value={monthFrom} onChange={e => setMonthFrom(e.target.value)}>
+              <option value="">Earliest</option>
+              {sortedMonths.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <span className="filter-label" style={{ color: "#64748B", fontSize: 12, fontWeight: 500 }}>To</span>
+            <select value={monthTo} onChange={e => setMonthTo(e.target.value)}>
+              <option value="">Latest</option>
+              {sortedMonths.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
         </div>
       </div>
+
+      {/* ============ MOBILE FILTER BOTTOM SHEET ============ */}
+      {showFilters && (
+        <div className="modal-overlay" onClick={() => setShowFilters(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+            <div style={{ padding: "14px 20px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+              <div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)" }} />
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Filters</h3>
+              <button onClick={() => setShowFilters(false)} style={{ background: "rgba(255,255,255,0.06)", border: 0, borderRadius: 8, width: 32, height: 32, color: "#94A3B8", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+            </div>
+            <div style={{ padding: "16px 20px 24px", display: "flex", flexDirection: "column", gap: 14, overflow: "auto" }}>
+              <div>
+                <label style={{ fontSize: 11, color: "#64748B", fontWeight: 500, marginBottom: 6, display: "block" }}>Account</label>
+                <select value={selectedAccount} onChange={e => { setSelectedAccount(e.target.value); setShowFilters(false); }}>
+                  {accounts.map(a => <option key={a} value={a}>{a}{accountNames.has(a) ? ` — ${accountNames.get(a)}` : ""}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#64748B", fontWeight: 500, marginBottom: 6, display: "block" }}>From</label>
+                <select value={monthFrom} onChange={e => { setMonthFrom(e.target.value); setShowFilters(false); }}>
+                  <option value="">Earliest</option>
+                  {sortedMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#64748B", fontWeight: 500, marginBottom: 6, display: "block" }}>To</label>
+                <select value={monthTo} onChange={e => { setMonthTo(e.target.value); setShowFilters(false); }}>
+                  <option value="">Latest</option>
+                  {sortedMonths.map(m => <option key={m} value={m}>{m}</option>)}</select>
+              </div>
+              <button onClick={() => { setMonthFrom(""); setMonthTo(""); setSelectedAccount(accounts[0] || ""); setShowFilters(false); }}
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px", color: "#94A3B8", fontSize: 13, fontWeight: 500, cursor: "pointer", marginTop: 4 }}>Reset Filters</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ============ 1. OVERVIEW (Executive Dashboard) ============ */}
       <div className="kpi-grid" style={{ marginBottom: 24 }}>
@@ -356,33 +472,42 @@ export default function DashboardPage() {
       )}
 
       {/* ============ 2. CONSUMPTION ANALYSIS ============ */}
-      <div className="section-title" style={{ marginBottom: 14, marginTop: 8 }}>
+      <div className="section-title" style={{ marginBottom: 16, marginTop: 8 }}>
+          <div className="section-accent" />
           <span>Consumption Analysis</span>
-          <div style={{ height: 1, flex: 1, background: "#1E293B" }} />
+          <div style={{ height: 1, flex: 1, background: "linear-gradient(to right, #1E293B, transparent)" }} />
         </div>
       <div className="grid-2" style={{ marginBottom: 16 }}>
-        <ChartCard title="Monthly Consumption" subtitle="Energy usage trend with 3-month rolling average">
-          <ResponsiveContainer width="100%" height={270}>
+        <ChartCard title="Monthly Consumption" subtitle={avgConsumption > 0 ? `Avg ${avgConsumption.toFixed(0)} kWh  ·  Latest ${(latest?.consumption ?? 0).toFixed(0)} kWh` : "Energy usage trend with 3-month rolling average"}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <ComposedChart data={chartDataWithAvg}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+              <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
               <YAxis stroke="#64748B" fontSize={11} />
-              <Tooltip contentStyle={ttStyle} />
+              <Tooltip contentStyle={ttStyle} formatter={(v: number, n: string) => [n === "Usage" ? `${v.toFixed(0)} kWh` : `${v.toFixed(0)} kWh`, n]} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
-              <Bar dataKey="consumption" name="Usage" fill="#3B82F6" radius={[3, 3, 0, 0]} />
-              <Line type="monotone" dataKey="rollingAvg" name="3-Mo Avg" stroke="#F59E0B" strokeWidth={2.5} dot={false} />
+              <ReferenceLine y={avgConsumption} stroke="#64748B" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: "Avg", position: "insideTopRight", fill: "#64748B", fontSize: 10 }} />
+              <Bar dataKey="consumption" name="Usage" radius={[3, 3, 0, 0]}>
+                {chartDataWithAvg.map((d, i) => (
+                  <Cell key={i} fill={d.consumption > avgConsumption ? "#F59E0B" : "#3B82F6"} />
+                ))}
+                <LabelList dataKey="consumption" position="top" fill="#94A3B8" fontSize={10} formatter={(v: number) => v > 0 ? v.toFixed(0) : ""} />
+              </Bar>
+              <Line type="monotone" dataKey="rollingAvg" name="3-Mo Avg" stroke="#22C55E" strokeWidth={2.5} dot={{ r: 3, fill: "#22C55E" }} />
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Month-over-Month Change" subtitle="% change in consumption from previous month">
-          <ResponsiveContainer width="100%" height={270}>
+        <ChartCard title="Month-over-Month Change" subtitle={latest && prev ? `${((latest.consumption! - prev.consumption!) / prev.consumption! * 100).toFixed(1)}% from last month` : "% change vs previous month"}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={momData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+              <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
               <YAxis stroke="#64748B" fontSize={11} tickFormatter={v => `${v.toFixed(0)}%`} />
               <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Change"]} />
+              <ReferenceLine y={0} stroke="#64748B" strokeWidth={1.5} />
               <Bar dataKey="momPct" name="Change %" radius={[3, 3, 0, 0]}>
-                {momData.map((d, i) => <Cell key={i} fill={d.momPct >= 0 ? "#EF4444" : "#22C55E"} />)}
+                {momData.map((d, i) => <Cell key={i} fill={d.momPct >= 5 ? "#EF4444" : d.momPct <= -5 ? "#22C55E" : "#F59E0B"} />)}
+                <LabelList dataKey="momPct" position="top" fill="#94A3B8" fontSize={10} formatter={(v: number) => v === 0 ? "" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -390,38 +515,46 @@ export default function DashboardPage() {
       </div>
 
       {/* ============ 3. BILL ANALYSIS ============ */}
-      <div className="section-title" style={{ marginBottom: 14 }}>
+      <div className="section-title" style={{ marginBottom: 16 }}>
+          <div className="section-accent" />
           <span>Bill Analysis</span>
-          <div style={{ height: 1, flex: 1, background: "#1E293B" }} />
+          <div style={{ height: 1, flex: 1, background: "linear-gradient(to right, #1E293B, transparent)" }} />
         </div>
         <div className="grid-1-5" style={{ marginBottom: 16 }}>
-        <ChartCard title="Charges Breakdown" subtitle="Monthly composition of your total charges">
-          <ResponsiveContainer width="100%" height={270}>
+        <ChartCard title="Charges Breakdown" subtitle={latest ? `Energy ${((latest.energyCharges! / latest.currentBill!) * 100).toFixed(0)}%  ·  Demand ${((latest.demandCharges! / latest.currentBill!) * 100).toFixed(0)}%  ·  Duty ${((latest.electricityDuty! / latest.currentBill!) * 100).toFixed(0)}%` : "Monthly composition of charges"}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
-              <YAxis stroke="#64748B" fontSize={11} />
-              <Tooltip contentStyle={ttStyle} />
+              <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
+              <YAxis stroke="#64748B" fontSize={11} tickFormatter={v => `₹${v.toFixed(0)}`} />
+              <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹ ${v.toFixed(0)}`]} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
               <Bar dataKey="energyCharges" name="Energy" stackId="a" fill="#3B82F6" radius={[0, 0, 0, 0]} />
               <Bar dataKey="demandCharges" name="Demand" stackId="a" fill="#F59E0B" />
-              <Bar dataKey="duty" name="Duty" stackId="a" fill="#8B5CF6" />
+              <Bar dataKey="duty" name="Duty" stackId="a" fill="#8B5CF6" radius={[0, 0, 0, 0]} />
               <Bar dataKey="other" name="Other" stackId="a" fill="#64748B" radius={[4, 4, 0, 0]} />
+              <ReferenceLine y={0} stroke="transparent" />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Latest Bill Composition" subtitle={latest ? fmt(latest.billMonth) : ""}>
+        <ChartCard title="Latest Bill Composition" subtitle={latest ? `${fmt(latest.billMonth)}  ·  ₹ ${latest.currentBill?.toFixed(0) ?? 0} total` : ""}>
           {latestBreakdown.length > 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", height: 270 }}>
-              <ResponsiveContainer width="100%" height={180}>
-                <PieChart>
-                  <Pie data={latestBreakdown} cx="50%" cy="50%" innerRadius={45} outerRadius={80} paddingAngle={3} dataKey="value">
-                    {latestBreakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹ ${v.toFixed(0)}`]} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 4 }}>
+            <div style={{ display: "flex", flexDirection: "column", height: chartHComp }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={latestBreakdown} cx="50%" cy="50%" innerRadius={45} outerRadius={80} paddingAngle={3} dataKey="value">
+                      {latestBreakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹ ${v.toFixed(0)}`]} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -55%)", textAlign: "center", pointerEvents: "none" }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0", lineHeight: 1 }}>₹{(latest?.currentBill ?? 0).toFixed(0)}</div>
+                  <div style={{ fontSize: 9, color: "#64748B", marginTop: 2 }}>Total</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "8px 0 0" }}>
                 {latestBreakdown.map((d, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11 }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: COLORS[i % COLORS.length] }} />
@@ -438,9 +571,10 @@ export default function DashboardPage() {
       {/* ============ 4. SOLAR DASHBOARD ============ */}
       {solarMonths > 0 && (
         <>
-          <div className="section-title" style={{ marginBottom: 14 }}>
+          <div className="section-title" style={{ marginBottom: 16 }}>
+            <div className="section-accent" style={{ background: "#F97316" }} />
             <span>Solar Performance</span>
-            <div style={{ height: 1, flex: 1, background: "#1E293B" }} />
+            <div style={{ height: 1, flex: 1, background: "linear-gradient(to right, #1E293B, transparent)" }} />
           </div>
           <div className="kpi-grid-solar" style={{ marginBottom: 14 }}>
             <Card title="Total Exported" value={`${totalSolarExport.toFixed(0)} kWh`} subtitle={`Avg ${avgMonthlyExport.toFixed(0)} kWh/mo`} accent="#F97316" icon="☀️" />
@@ -450,55 +584,60 @@ export default function DashboardPage() {
             <Card title="Cumulative Savings" value={`₹ ${cumulativeSolarSavings.length > 0 ? cumulativeSolarSavings[cumulativeSolarSavings.length - 1].savings.toFixed(0) : 0}`} accent="#F59E0B" icon="🏦" />
           </div>
           <div className="grid-2" style={{ marginBottom: 16 }}>
-            <ChartCard title="Consumption vs Solar Generation" subtitle="Grid usage vs solar contribution">
-              <ResponsiveContainer width="100%" height={250}>
+            <ChartCard title="Consumption vs Solar Generation" subtitle={totalConsumption > 0 ? `${((totalSolarExport / totalConsumption) * 100).toFixed(1)}% of usage offset by solar` : "Grid usage vs solar contribution"}>
+              <ResponsiveContainer width="100%" height={chartHSm}>
                 <ComposedChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
                   <YAxis stroke="#64748B" fontSize={11} />
                   <Tooltip contentStyle={ttStyle} />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
-                  <Bar dataKey="consumption" name="Consumption" fill="#3B82F6" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="solarExport" name="Solar Export" fill="#F97316" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="consumption" name="From Grid" fill="#3B82F6" radius={[3, 3, 0, 0]} stackId="a" />
+                  <Bar dataKey="solarExport" name="Solar Offset" fill="#F97316" radius={[3, 3, 0, 0]} stackId="a" />
                 </ComposedChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title="Cumulative Solar Savings" subtitle="Estimated monetary benefit over time">
-              <ResponsiveContainer width="100%" height={250}>
+            <ChartCard title="Cumulative Solar Savings" subtitle={cumulativeSolarSavings.length > 0 ? `₹ ${cumulativeSolarSavings[cumulativeSolarSavings.length - 1].savings.toFixed(0)} total` : "Estimated monetary benefit over time"}>
+              <ResponsiveContainer width="100%" height={chartHSm}>
                 <AreaChart data={cumulativeSolarSavings}>
-                  <defs><linearGradient id="cumSolar" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#F97316" stopOpacity={0.25} /><stop offset="95%" stopColor="#F97316" stopOpacity={0} /></linearGradient></defs>
+                  <defs><linearGradient id="cumSolar" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#F97316" stopOpacity={0.3} /><stop offset="95%" stopColor="#F97316" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
                   <YAxis stroke="#64748B" fontSize={11} tickFormatter={v => `₹${v.toFixed(0)}`} />
                   <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹ ${v.toFixed(0)}`, "Savings"]} />
-                  <Area type="monotone" dataKey="savings" stroke="#F97316" fill="url(#cumSolar)" strokeWidth={2.5} />
+                  <Area type="monotone" dataKey="savings" stroke="#F97316" strokeWidth={2.5} fill="url(#cumSolar)" />
+                  {cumulativeSolarSavings.length > 0 && (
+                    <ReferenceLine y={cumulativeSolarSavings[cumulativeSolarSavings.length - 1].savings} stroke="#F97316" strokeDasharray="4 4" strokeWidth={1} label={{ value: `₹${cumulativeSolarSavings[cumulativeSolarSavings.length - 1].savings.toFixed(0)}`, position: "insideTopRight", fill: "#F97316", fontSize: 11, fontWeight: 600 }} />
+                  )}
                 </AreaChart>
               </ResponsiveContainer>
             </ChartCard>
           </div>
           <div className="grid-2" style={{ marginBottom: 16 }}>
-            <ChartCard title="Solar Balance Trend" subtitle="Opening vs closing surplus (kWh)">
-              <ResponsiveContainer width="100%" height={240}>
-                <ComposedChart data={chartData}>
+            <ChartCard title="Solar Balance Trend" subtitle={netBalanceChange >= 0 ? `Growing  ·  Net +${netBalanceChange.toFixed(0)} kWh` : `Declining  ·  Net ${netBalanceChange.toFixed(0)} kWh`}>
+              <ResponsiveContainer width="100%" height={chartHXs}>
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="balPos" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22C55E" stopOpacity={0.25} /><stop offset="95%" stopColor="#22C55E" stopOpacity={0} /></linearGradient>
+                    <linearGradient id="balNeg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#EF4444" stopOpacity={0.25} /><stop offset="95%" stopColor="#EF4444" stopOpacity={0} /></linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
                   <YAxis stroke="#64748B" fontSize={11} />
-                  <Tooltip content={<SolarBalTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
-                  <Bar dataKey="openingBal" name="Opening" fill="#475569" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="closingBal" name="Closing" fill="#F97316" radius={[3, 3, 0, 0]} />
-                  <Line type="monotone" dataKey="balanceChange" name="Net Change" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
-                </ComposedChart>
+                  <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`${v.toFixed(0)} kWh`]} />
+                  <Area type="monotone" dataKey="closingBal" name="Closing Balance" stroke={netBalanceChange >= 0 ? "#22C55E" : "#EF4444"} fill={netBalanceChange >= 0 ? "url(#balPos)" : "url(#balNeg)"} strokeWidth={2.5} />
+                </AreaChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title="Solar Offset %" subtitle="Portion of consumption covered by solar">
-              <ResponsiveContainer width="100%" height={240}>
+            <ChartCard title="Solar Offset %" subtitle={chartData.length > 0 ? `Latest ${chartData[chartData.length - 1].solarOffsetPct.toFixed(0)}%` : "Portion of consumption covered by solar"}>
+              <ResponsiveContainer width="100%" height={chartHXs}>
                 <AreaChart data={chartData}>
                   <defs><linearGradient id="solarOff" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#F97316" stopOpacity={0.25} /><stop offset="95%" stopColor="#F97316" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+                  <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
                   <YAxis stroke="#64748B" fontSize={11} domain={[0, 100]} tickFormatter={v => `${v}%`} />
                   <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Offset"]} />
+                  <ReferenceLine y={50} stroke="#64748B" strokeDasharray="4 4" strokeWidth={1} label={{ value: "50%", position: "right", fill: "#64748B", fontSize: 10 }} />
                   <Area type="monotone" dataKey="solarOffsetPct" stroke="#F97316" fill="url(#solarOff)" strokeWidth={2.5} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -508,31 +647,37 @@ export default function DashboardPage() {
       )}
 
       {/* ============ 5. LOAD ANALYSIS ============ */}
-      <div className="section-title" style={{ marginBottom: 14 }}>
+      <div className="section-title" style={{ marginBottom: 16 }}>
+          <div className="section-accent" style={{ background: "#F59E0B" }} />
           <span>Load &amp; Cost Efficiency</span>
-          <div style={{ height: 1, flex: 1, background: "#1E293B" }} />
+          <div style={{ height: 1, flex: 1, background: "linear-gradient(to right, #1E293B, transparent)" }} />
         </div>
       <div className="grid-2" style={{ marginBottom: 16 }}>
-        <ChartCard title="Maximum Demand Trend" subtitle="Billed demand vs sanctioned load (kW)">
-          <ResponsiveContainer width="100%" height={250}>
+        <ChartCard title="Maximum Demand Trend" subtitle={latest && latest.sanctionedLoad ? `${((latest.billedDemand! / latest.sanctionedLoad) * 100).toFixed(0)}% utilization` : "Billed demand vs sanctioned load"}>
+          <ResponsiveContainer width="100%" height={chartHSm}>
             <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+              <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
               <YAxis stroke="#64748B" fontSize={11} />
               <Tooltip contentStyle={ttStyle} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
-              <Bar dataKey="billedDemand" name="Billed Demand" fill="#F59E0B" radius={[3, 3, 0, 0]} />
-              <Line type="monotone" dataKey="sanctionedLoad" name="Sanctioned Load" stroke="#22C55E" strokeWidth={2.5} strokeDasharray="5 5" dot={false} />
+              <Bar dataKey="billedDemand" name="Billed Demand" radius={[3, 3, 0, 0]}>
+                {chartData.map((d, i) => (
+                  <Cell key={i} fill={d.billedDemand > d.sanctionedLoad ? "#EF4444" : "#F59E0B"} />
+                ))}
+              </Bar>
+              <Line type="monotone" dataKey="sanctionedLoad" name="Sanctioned Load" stroke="#22C55E" strokeWidth={2.5} strokeDasharray="6 4" dot={false} />
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Effective Cost per Unit" subtitle="₹ per kWh over time">
-          <ResponsiveContainer width="100%" height={250}>
+        <ChartCard title="Effective Cost per Unit" subtitle={avgCostPerUnit > 0 ? `Avg ₹${avgCostPerUnit.toFixed(2)}/kWh` : "₹ per kWh over time"}>
+          <ResponsiveContainer width="100%" height={chartHSm}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} />
+              <XAxis dataKey="month" stroke="#64748B" fontSize={11} className="axis-x" interval="preserveStartEnd" />
               <YAxis stroke="#64748B" fontSize={11} domain={["auto", "auto"]} tickFormatter={v => `₹${v.toFixed(1)}`} />
               <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹ ${v.toFixed(2)}`, "per kWh"]} />
+              <ReferenceLine y={avgCostPerUnit} stroke="#64748B" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: "Avg", position: "insideTopRight", fill: "#64748B", fontSize: 10 }} />
               <Line type="monotone" dataKey="costPerUnit" stroke="#8B5CF6" strokeWidth={2.5} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -540,27 +685,37 @@ export default function DashboardPage() {
       </div>
 
       {/* ============ 7. TREND ANALYSIS ============ */}
-      <div className="section-title" style={{ marginBottom: 14 }}>
+      <div className="section-title" style={{ marginBottom: 16 }}>
+          <div className="section-accent" style={{ background: "#8B5CF6" }} />
           <span>Trend Analysis</span>
-          <div style={{ height: 1, flex: 1, background: "#1E293B" }} />
+          <div style={{ height: 1, flex: 1, background: "linear-gradient(to right, #1E293B, transparent)" }} />
         </div>
       <div className="grid-3" style={{ marginBottom: 20 }}>
-        <div style={{ background: "#111827", borderRadius: 12, padding: "16px 20px" }}>
-          <span style={{ color: "#64748B", fontSize: 11 }}>Avg Monthly Consumption</span>
+        <div className="trend-card">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: "#3B82F6" }} />
+            <span style={{ color: "#64748B", fontSize: 11 }}>Avg Monthly Consumption</span>
+          </div>
           <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{avgConsumption.toFixed(0)} <span style={{ fontSize: 14, fontWeight: 400, color: "#64748B" }}>kWh</span></div>
           <div style={{ color: "#94A3B8", fontSize: 12, marginTop: 6 }}>
             {chartData.length >= 2 ? `${chartData[0].consumption.toFixed(0)} → ${chartData[chartData.length - 1].consumption.toFixed(0)} kWh` : ""}
           </div>
         </div>
-        <div style={{ background: "#111827", borderRadius: 12, padding: "16px 20px" }}>
-          <span style={{ color: "#64748B", fontSize: 11 }}>Avg Monthly Bill</span>
+        <div className="trend-card">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: "#22C55E" }} />
+            <span style={{ color: "#64748B", fontSize: 11 }}>Avg Monthly Bill</span>
+          </div>
           <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>₹ {avgBill.toFixed(0)}</div>
           <div style={{ color: "#94A3B8", fontSize: 12, marginTop: 6 }}>
             {chartData.length >= 2 ? `₹ ${chartData[0].billAmount.toFixed(0)} → ₹ ${chartData[chartData.length - 1].billAmount.toFixed(0)}` : ""}
           </div>
         </div>
-        <div style={{ background: "#111827", borderRadius: 12, padding: "16px 20px" }}>
-          <span style={{ color: "#64748B", fontSize: 11 }}>Avg Cost per Unit</span>
+        <div className="trend-card">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: "#8B5CF6" }} />
+            <span style={{ color: "#64748B", fontSize: 11 }}>Avg Cost per Unit</span>
+          </div>
           <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>₹ {avgCostPerUnit.toFixed(2)} <span style={{ fontSize: 14, fontWeight: 400, color: "#64748B" }}>/kWh</span></div>
           <div style={{ color: "#94A3B8", fontSize: 12, marginTop: 6 }}>
             {chartData.length >= 2 ? `₹ ${chartData[0].costPerUnit.toFixed(2)} → ₹ ${chartData[chartData.length - 1].costPerUnit.toFixed(2)}` : ""}
@@ -569,7 +724,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ============ INSIGHTS BAR ============ */}
-      <div className="insights-bar" style={{ background: "#111827", borderRadius: 12, padding: "14px 22px", marginBottom: 20 }}>
+      <div className="insights-bar insights-card" style={{ borderRadius: 14, padding: "16px 24px", marginBottom: 20 }}>
         <div><span style={{ color: "#64748B", fontSize: 11 }}>Period</span><div style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 600, marginTop: 2 }}>{chartData.length > 0 ? `${chartData[0].month} — ${chartData[chartData.length - 1].month}` : "—"}</div></div>
         <div><span style={{ color: "#64748B", fontSize: 11 }}>Total Consumption</span><div style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 600, marginTop: 2 }}>{(totalConsumption / 1000).toFixed(1)}k kWh</div></div>
         <div><span style={{ color: "#64748B", fontSize: 11 }}>Total Bill</span><div style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 600, marginTop: 2 }}>₹ {(totalBill / 100000).toFixed(1)}L</div></div>
@@ -578,14 +733,20 @@ export default function DashboardPage() {
         <div><span style={{ color: "#64748B", fontSize: 11 }}>Solar Offset</span><div style={{ color: "#F97316", fontSize: 13, fontWeight: 600, marginTop: 2 }}>{totalConsumption > 0 ? `${((totalSolarExport / totalConsumption) * 100).toFixed(1)}%` : "—"}</div></div>
       </div>
 
-      {/* ============ BILLING HISTORY TABLE ============ */}
-      <div className="table-wrap" style={{ background: "#111827", borderRadius: 12 }}>
-        <div style={{ padding: "14px 20px", fontSize: 15, fontWeight: 600, borderBottom: "1px solid #1E293B", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span>Billing History</span>
+      {/* ============ BILLING HISTORY ============ */}
+      <div className={`anim-in ${isMobile ? "" : "table-wrap"}`} style={{ borderRadius: 14 }}>
+        <div style={{ padding: isMobile ? "0 0 12px" : "16px 22px", fontSize: 15, fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: isMobile ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 4, height: 18, borderRadius: 4, background: "linear-gradient(180deg, #3B82F6, #60A5FA)", boxShadow: "0 0 12px rgba(59,130,246,0.3)" }} />
+            <span style={{ letterSpacing: "-0.01em" }}>Billing History</span>
+          </div>
           <span style={{ color: "#64748B", fontSize: 12, fontWeight: 400 }}>{sorted.length} records</span>
         </div>
+
+        {/* DESKTOP TABLE */}
+        <div className="desktop-only" style={{ overflow: "auto", maxHeight: "calc(100vh - 300px)" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
+          <thead className="table-header">
             <tr style={{ background: "#1E293B" }}>
               {["Month", "Account", "Consumer", "Meter", "kWh", "Energy", "Demand", "Duty", "Bill", "Payable", "₹/kWh", "PF", "Solar", "Bal"].map(h => <th key={h} style={th}>{h}</th>)}
               <th style={th}></th>
@@ -593,9 +754,7 @@ export default function DashboardPage() {
           </thead>
           <tbody>
             {[...sorted].reverse().map(b => (
-              <tr key={b.id} style={{ transition: "background 0.15s" }}
-                onMouseEnter={e => e.currentTarget.style.background = "#1a2332"}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+              <tr key={b.id} className="table-row">
                 <td style={td}>{fmt(b.billMonth)}</td>
                 <td style={td}>{b.accountNumber}</td>
                 <td style={td}>{b.consumerName ?? "—"}</td>
@@ -611,21 +770,30 @@ export default function DashboardPage() {
                 <td style={{ ...td, color: "#F97316" }}>{b.solarExport?.toFixed(0) ?? "—"}</td>
                 <td style={td}>{b.closingSolarBalance?.toFixed(0) ?? "—"}</td>
                 <td style={{ ...td, textAlign: "center" }}>
-                  <button onClick={() => setViewBill(b)} style={{ background: "#3B82F6", color: "white", border: 0, borderRadius: 6, padding: "5px 12px", cursor: "pointer", fontSize: 11, fontWeight: 500 }}>View</button>
+                  <button onClick={() => setViewBill(b)} className="btn-view" style={{ color: "white", border: 0, borderRadius: 6, padding: "6px 14px", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>View</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
+
+        {/* MOBILE CARDS */}
+        <div className="mobile-only" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[...sorted].reverse().map(b => <BillingCard key={b.id} b={b} onView={setViewBill} />)}
+        </div>
       </div>
 
       {/* ============ DETAIL MODAL ============ */}
       {viewBill && (
         <div className="modal-overlay" onClick={() => setViewBill(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: "#1E293B", maxWidth: 700 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 22px", borderBottom: "1px solid #334155" }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 700 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 22px 18px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, position: "relative" }}>
+              <div className="mobile-only" style={{ position: "absolute", top: 6, left: "50%", transform: "translateX(-50%)", width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)" }} />
               <h3 style={{ margin: 0, fontSize: 17 }}>{viewBill.billNumber}</h3>
-              <button onClick={() => setViewBill(null)} style={{ background: "none", border: 0, color: "#94A3B8", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>&times;</button>
+              <button onClick={() => setViewBill(null)} style={{ background: "rgba(255,255,255,0.06)", border: 0, color: "#94A3B8", cursor: "pointer", fontSize: 18, lineHeight: 1, borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}>&times;</button>
             </div>
             <div style={{ padding: "6px 22px 22px" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -653,17 +821,11 @@ export default function DashboardPage() {
   );
 }
 
-const s: React.CSSProperties = {
-  padding: "9px 12px", borderRadius: 9, border: "1px solid #334155",
-  background: "#111827", color: "white", outline: "none", fontSize: 13,
-  cursor: "pointer", minWidth: 150,
-};
-
 const th: React.CSSProperties = {
-  padding: "10px 14px", textAlign: "left", fontSize: 11, color: "#94A3B8",
-  fontWeight: 500, whiteSpace: "nowrap",
+  padding: "11px 14px", textAlign: "left", fontSize: 11, color: "#94A3B8",
+  fontWeight: 600, whiteSpace: "nowrap", letterSpacing: "0.03em", textTransform: "uppercase",
 };
 
 const td: React.CSSProperties = {
-  padding: "9px 14px", borderTop: "1px solid #1E293B", fontSize: 12, whiteSpace: "nowrap",
+  padding: "10px 14px", borderTop: "1px solid rgba(30, 41, 59, 0.6)", fontSize: 12, whiteSpace: "nowrap",
 };
