@@ -5,7 +5,7 @@ set -e
 APP_DIR="/opt/billreader"
 FRONTEND_PORT=3001
 BACKEND_PORT=8001
-DOMAIN_OR_IP="" # leave empty to use server IP
+DOMAIN_OR_IP="electricity.hsnadeeb.in" # leave empty to use server IP
 # ─────────────────────────────────────────────────────────────────────
 
 if [ "$EUID" -ne 0 ]; then
@@ -32,6 +32,7 @@ npm run build
 
 echo "==> Setting up backend..."
 cd "$APP_DIR/backend"
+rm -rf venv
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
