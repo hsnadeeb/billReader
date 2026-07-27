@@ -8,12 +8,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Test SSH
+      - uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: "161.118.167.226 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEILgx7QBS+2f2GFgs7yjamKvcGxZDYngEcJD9oU/PDn"
+
+      - name: Deploy billreader
         run: |
-          echo 'SSH key test'
-          # Write the SSH key directly (GitHub Actions handles multiline secrets properly)
-          cat > /tmp/deploy_key.pem << 'RUNNER_EOF'
-          ${{ secrets.SSH_KEY }}
-          RUNNER_EOF
-          chmod 600 /tmp/deploy_key.pem
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i /tmp/deploy_key.pem ubuntu@161.118.167.226 "echo SSH_OK"
+          ssh -o ConnectTimeout=15 ubuntu@161.118.167.226 "
+            cd /opt/billreader
+            git pull origin main
+            npm ci
+            npm run build
+            cd backend
+            source venv/bin/activate
+            pip install -r requirements.txt
+            cd ..
+            sudo systemctl restart billreader-backend billreader-frontend
+            echo 'billreader deployed'
+          "
