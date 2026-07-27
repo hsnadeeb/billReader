@@ -8,16 +8,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy billreader
-        uses: appleboy/ssh-action@v2.2.0
-        with:
-          host: 161.118.167.226
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          script: |
-            echo "SSH connection successful"
-            whoami
-            hostname
+      - name: Test SSH connection
+        shell: bash
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i /tmp/ssh_key ubuntu@161.118.167.226 "echo CONNECTED; hostname" 2>&1
