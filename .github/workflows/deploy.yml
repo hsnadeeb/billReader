@@ -8,21 +8,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy billreader
+      - name: Test SSH connection
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           echo "$SSH_KEY" > /tmp/key
           chmod 600 /tmp/key
-          ssh -o StrictHostKeyChecking=no -i /tmp/key ubuntu@161.118.167.226 "
-            cd /opt/billreader
-            git pull origin main
-            npm ci
-            npm run build
-            cd backend
-            source venv/bin/activate
-            pip install -r requirements.txt
-            cd ..
-            sudo systemctl restart billreader-backend billreader-frontend
-            echo 'billreader deployed'
-          "
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/key ubuntu@161.118.167.226 "echo SSH_OK"
