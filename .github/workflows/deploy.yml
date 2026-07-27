@@ -8,10 +8,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Test SSH connection
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+      - name: Test SSH
         run: |
-          echo "$SSH_KEY" > /tmp/key
-          chmod 600 /tmp/key
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/key ubuntu@161.118.167.226 "echo SSH_OK"
+          echo 'SSH key test'
+          # Write the SSH key directly (GitHub Actions handles multiline secrets properly)
+          cat > /tmp/deploy_key.pem << 'RUNNER_EOF'
+          ${{ secrets.SSH_KEY }}
+          RUNNER_EOF
+          chmod 600 /tmp/deploy_key.pem
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i /tmp/deploy_key.pem ubuntu@161.118.167.226 "echo SSH_OK"
