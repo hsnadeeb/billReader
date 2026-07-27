@@ -11,22 +11,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Deploy billreader
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v2.2.0
         with:
           host: 161.118.167.226
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
+          port: 22
           script: |
-            cd /opt/billreader
-            git pull origin main
-            npm ci
-            npm run build
-            cd backend
-            source venv/bin/activate
-            pip install -r requirements.txt
-            cd ..
-            sudo systemctl restart billreader-backend billreader-frontend
-            echo "billreader deployed"
-
-# re-trigger
-# trigger
+            echo "SSH connection successful"
+            whoami
+            hostname
