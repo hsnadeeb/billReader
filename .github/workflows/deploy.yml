@@ -8,17 +8,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-
-      - name: Add host key
-        run: |
-          mkdir -p ~/.ssh
-          echo "161.118.167.226 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEILgx7QBS+2f2GFgs7yjamKvcGxZDYngEcJD9oU/PDn" >> ~/.ssh/known_hosts
-
       - name: Deploy billreader
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
+          eval $(ssh-agent -s)
+          echo "$SSH_KEY" | ssh-add -
+          ssh-keyscan -H 161.118.167.226 >> ~/.ssh/known_hosts 2>/dev/null
           ssh -o ConnectTimeout=15 ubuntu@161.118.167.226 "
             cd /opt/billreader
             git pull origin main
