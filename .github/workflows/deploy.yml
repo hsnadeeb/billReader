@@ -8,9 +8,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Test SSH connection
-        shell: bash
+      - name: Test SSH with verbose
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          echo "${{ secrets.SSH_KEY }}" > /tmp/ssh_key
-          chmod 600 /tmp/ssh_key
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i /tmp/ssh_key ubuntu@161.118.167.226 "echo CONNECTED; hostname" 2>&1
+          set -x
+          echo "$SSH_KEY" > /tmp/key
+          chmod 600 /tmp/key
+          ssh -vvv -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/key ubuntu@161.118.167.226 whoami 2>&1 || true
