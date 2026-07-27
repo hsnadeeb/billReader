@@ -27,3 +27,4 @@ jobs:
             sudo systemctl restart billreader-backend billreader-frontend
             echo 'billreader deployed'
           "
+
