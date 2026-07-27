@@ -8,10 +8,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: shimataro/ssh-key-action@v2
+      - uses: webfactory/ssh-agent@v0.9.0
         with:
-          key: ${{ secrets.SSH_KEY }}
-          known_hosts: "161.118.167.226 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEILgx7QBS+2f2GFgs7yjamKvcGxZDYngEcJD9oU/PDn"
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Add host key
+        run: |
+          mkdir -p ~/.ssh
+          echo "161.118.167.226 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEILgx7QBS+2f2GFgs7yjamKvcGxZDYngEcJD9oU/PDn" >> ~/.ssh/known_hosts
 
       - name: Deploy billreader
         run: |
@@ -27,4 +31,3 @@ jobs:
             sudo systemctl restart billreader-backend billreader-frontend
             echo 'billreader deployed'
           "
-
