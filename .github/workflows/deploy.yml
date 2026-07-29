@@ -6,15 +6,17 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Debug SSH setup
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+      - name: Deploy billreader
         run: |
-          set -x
-          eval $(ssh-agent -s)
-          echo "$SSH_KEY" > /tmp/key
-          chmod 600 /tmp/key
-          ssh-keygen -y -f /tmp/key > /tmp/key.pub 2>&1 && echo "KEY VALID" || echo "KEY INVALID"
-          cat /tmp/key.pub 2>/dev/null
+          cd /opt/billreader
+          git pull origin main
+          npm ci
+          npm run build
+          cd backend
+          source venv/bin/activate
+          pip install -r requirements.txt
+          cd ..
+          sudo systemctl restart billreader-backend billreader-frontend
+          echo "billreader deployed"
