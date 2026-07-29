@@ -1,4 +1,4 @@
-name: Deploy billreader
+name: Deploy All Projects
 
 on:
   push:
@@ -20,3 +20,29 @@ jobs:
           cd ..
           sudo systemctl restart billreader-backend billreader-frontend
           echo "billreader deployed"
+
+      - name: Deploy x3rph frontend
+        run: |
+          cd /mnt/data/projects/x3rph/fe
+          git pull origin main
+          npm ci
+          npm run build
+          sudo systemctl restart x3rph-frontend
+          echo "x3rph frontend deployed"
+
+      - name: Deploy x3rph backend
+        run: |
+          cd /mnt/data/projects/x3rph/be
+          git pull origin main
+          go build -o app ./cmd/api
+          sudo systemctl restart x3rph-backend
+          echo "x3rph backend deployed"
+
+      - name: Deploy SIMS-AI
+        run: |
+          cd /mnt/data/projects/SIMS-AI
+          git pull origin main
+          source venv/bin/activate
+          pip install -r requirements.txt
+          sudo systemctl restart sims-ai
+          echo "SIMS-AI deployed"
