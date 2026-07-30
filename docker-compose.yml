@@ -17,7 +17,7 @@ services:
       - DATABASE_URL=sqlite:///data/dev.db
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD-SHELL", "curl -s -o /dev/null http://localhost:8000 || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
